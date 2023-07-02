@@ -1,13 +1,15 @@
 # Code snippet to widen data
 # Sample dataset contains user data for several users in two columns, named "Label" and "Value"
 # Output returns a single row for each user
+# Columns sorted alphabetically
 # Code may be modified for use in other applications where data needs to be transformed before meaningful analysis can be applied
 
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
+import re
 
 # Read the Excel file into a DataFrame
-df = pd.read_excel('file')
+df = pd.read_excel('/filepath/file.xlsx')
 
 # Strip whitespace from 'Label' and 'Value' columns
 df['Label'] = df['Label'].str.strip()
@@ -35,20 +37,23 @@ for _, row in df.iterrows():
         current_user[label] = value
     elif label == 'Active':
         current_user[label] = value
-    elif label == 'Previous':
-        # Check for empty cells or non-standard datetime formats
-        if value != 'nan':
+    elif label == 'Last':
+        # Check if the value is in the format "X days ago"
+        if 'days ago' in value:
+            # Extract the number of days ago
+            days_ago = int(re.findall(r'\d+', value)[0])
+            # Add 4 days to the number of days ago
+            days_passed = days_ago + 4
+            current_user[label] = days_passed
+        else:
+            # Convert the value to a datetime object
             try:
-                previous_date = datetime.strptime(value, '%Y-%m-%d %H:%M').date()
-
-                # Calculate the number of days between previous date and current date
-                days_passed = (current_date - previous_date).days
-
+                last_date = datetime.strptime(value, '%Y-%m-%d %H:%M').date()
+                # Calculate the number of days between last date and current date
+                days_passed = (current_date - last_date).days
                 current_user[label] = days_passed
             except ValueError:
                 current_user[label] = value
-        else:
-            current_user[label] = value
     elif label == 'Name':
         # Swap Label and Value for 'Name' field
         current_user[value] = label
@@ -60,10 +65,8 @@ if current_user:
 # Convert the user data to a DataFrame
 df_users = pd.DataFrame(user_data)
 
-# Reorder the columns
-desired_columns = ['User id', 'Active', 'Previous']
-desired_columns.extend(df_users.columns.difference(['User id', 'Active', 'Previous']))
-df_users = df_users[desired_columns]
+# Reorder the columns in alphabetical order
+df_users = df_users.reindex(sorted(df_users.columns), axis=1)
 
 # Reset the index
 df_users.reset_index(drop=True, inplace=True)
@@ -72,4 +75,4 @@ df_users.reset_index(drop=True, inplace=True)
 print(df_users)
 
 # Export the DataFrame to an Excel file
-df_users.to_excel('file', index=False)
+df_users.to_excel('/filepath/file.xlsx', index=False)
