@@ -1,0 +1,75 @@
+# Code snippet to widen data
+# Sample dataset contains user data for several users in two columns, named "Label" and "Value"
+# Output returns a single row for each user
+# Code may be modified for use in other applications where data needs to be transformed before meaningful analysis can be applied
+
+import pandas as pd
+from datetime import datetime
+
+# Read the Excel file into a DataFrame
+df = pd.read_excel('file')
+
+# Strip whitespace from 'Label' and 'Value' columns
+df['Label'] = df['Label'].str.strip()
+df['Value'] = df['Value'].str.strip()
+
+# Initialize variables to store user data
+user_data = []
+current_user = {}
+
+# Get the current date
+current_date = datetime.now().date()
+
+# Iterate over the rows
+for _, row in df.iterrows():
+    label = str(row['Label'])
+    value = str(row['Value'])
+
+    # Check if the current row contains desired fields
+    if label == 'User id':
+        # Start of a new user, append the previous user's data (if any)
+        if current_user:
+            user_data.append(current_user)
+            current_user = {}
+
+        current_user[label] = value
+    elif label == 'Active':
+        current_user[label] = value
+    elif label == 'Previous':
+        # Check for empty cells or non-standard datetime formats
+        if value != 'nan':
+            try:
+                previous_date = datetime.strptime(value, '%Y-%m-%d %H:%M').date()
+
+                # Calculate the number of days between previous date and current date
+                days_passed = (current_date - previous_date).days
+
+                current_user[label] = days_passed
+            except ValueError:
+                current_user[label] = value
+        else:
+            current_user[label] = value
+    elif label == 'Name':
+        # Swap Label and Value for 'Name' field
+        current_user[value] = label
+
+# Append the last user's data
+if current_user:
+    user_data.append(current_user)
+
+# Convert the user data to a DataFrame
+df_users = pd.DataFrame(user_data)
+
+# Reorder the columns
+desired_columns = ['User id', 'Active', 'Previous']
+desired_columns.extend(df_users.columns.difference(['User id', 'Active', 'Previous']))
+df_users = df_users[desired_columns]
+
+# Reset the index
+df_users.reset_index(drop=True, inplace=True)
+
+# Print the DataFrame
+print(df_users)
+
+# Export the DataFrame to an Excel file
+df_users.to_excel('file', index=False)
