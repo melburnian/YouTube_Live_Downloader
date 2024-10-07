@@ -2,6 +2,8 @@
 
 This script allows you to download the most recent segment of a YouTube live stream and save it to your computer. You can specify the duration of the segment, choose the folder where the video will be saved, and use cookies for live streams that require login.
 
+This script is optimised for MacOS. Windows users should adapt elements of this script for their operating system as needed.
+
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
 2. [Downloading the Script](#downloading-the-script)
@@ -42,6 +44,10 @@ brew install ffmpeg
 ```
 
 For Windows users, follow the installation instructions on the official yt-dlp and ffmpeg websites.
+
+- **YouTube account**: You will need to be logged into a YouTube account. Cookies from your YouTube session are required to access the live stream data.
+
+- **Getcookies.txt**: This Chrome extension is used to save the cookies required to access live stream data. [I use this one](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc), and there are several other extensions that do the same thing available on the Chrome web store. 
 
 ---
 
@@ -85,7 +91,7 @@ python3 YTLive.py "https://www.youtube.com/watch?v=your_video_id" --duration 00:
 
 ***Download a Different Segment Length***
 
-  You can specify a different segment length using the --duration option. For example, to download the last 10 minutes of the l	live stream:
+  You can specify a different segment length using the --duration option. For example, to download the last 10 minutes of the live stream:
 
 ```bash
 python3 YTLive.py "https://www.youtube.com/watch?v=your_video_id" --duration 00:10:00 --output-directory ~/Downloads
@@ -115,6 +121,8 @@ python3 YTLive.py "https://www.youtube.com/watch?v=your_video_id" --output-direc
 ```bash
 python3 YTLive.py "https://www.youtube.com/watch?v=your_video_id" --cookie-file /path/to/cookies.txt --output-directory ~/Downloads
 ```
+
+  * The cookies.txt file should be updated prior the each execution of this script.
 
 ---
 
@@ -153,6 +161,7 @@ python3 YTLive.py "https://www.youtube.com/watch?v=your_video_id" --duration 00:
 ```bash
 python3 YTLive.py "https://www.youtube.com/watch?v=your_video_id" --cookie-file /path/to/cookies.txt --duration 00:10:00 --output-directory ~/Downloads
 ```
+  * The /path/to/cookies.txt may be dropped if the cookies.txt file is saved in the same location as the script.
 
 ---
 
